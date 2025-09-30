@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yoruba-English Translator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -20,15 +20,15 @@
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
 
   <!-- Main Container -->
-  <div class="bg-white rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden p-6 md:p-10 transform transition-transform duration-500 ease-in-out hover:scale-[1.01]">
+  <div class="bg-white rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden p-6 md:p-10">
     
-    <!-- Header -->
+    <!-- Header Section -->
     <div class="text-center mb-8">
       <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
         Yoruba-English Machine Translation
       </h1>
       <p class="text-md md:text-lg text-gray-500 mt-2">
-        Powered by Hugging Face Neural Models
+        Seamlessly translate Yoruba text into English.
       </p>
        <p class="text-md md:text-lg text-gray-500 mt-2">
         -By Obayori Deborah
@@ -38,44 +38,40 @@
     <!-- Translation Interface -->
     <div class="space-y-6">
       <!-- Yoruba Input -->
-      <div>
-        <label for="yorubaInput" class="block text-sm font-medium text-gray-700 mb-1">
-          Enter Yoruba Text
-        </label>
+      <div class="relative">
+        <label for="yorubaInput" class="block text-sm font-medium text-gray-700 mb-1">Enter Yoruba Text</label>
         <textarea id="yorubaInput" rows="5" placeholder="Ẹsẹ ọrọ Yoruba"
           class="block w-full rounded-2xl border border-gray-300 p-4 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"></textarea>
       </div>
 
-      <!-- Buttons -->
+      <!-- Action Buttons -->
       <div class="flex items-center justify-between space-x-4">
         <button id="translateButton"
-          class="flex-1 px-6 py-3 text-base font-medium rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+          class="flex-1 px-6 py-3 text-base font-medium rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
           Translate
         </button>
         <button id="clearButton"
-          class="flex-1 px-6 py-3 text-base font-medium rounded-full text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">
+          class="flex-1 px-6 py-3 text-base font-medium rounded-full text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200">
           Clear
         </button>
       </div>
 
-      <!-- English Output -->
+      <!-- Translation Output -->
       <div class="relative">
-        <label for="englishOutput" class="block text-sm font-medium text-gray-700 mb-1">
-          Translated English Text
-        </label>
+        <label for="englishOutput" class="block text-sm font-medium text-gray-700 mb-1">Translated English Text</label>
         <textarea id="englishOutput" rows="5" readonly
-          class="block w-full rounded-2xl border border-gray-300 p-4 bg-gray-50 text-gray-900 focus:outline-none transition resize-none"></textarea>
+          class="block w-full rounded-2xl border border-gray-300 p-4 bg-gray-50 text-gray-900 focus:outline-none transition-all duration-200 resize-none"></textarea>
         <button id="copyButton"
-          class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition focus:outline-none">
-          📋
+          class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-all duration-200 focus:outline-none">
+          Copy
         </button>
       </div>
 
-      <!-- Status Message -->
+      <!-- Status and Error Message Display -->
       <div id="statusMessage" class="text-sm text-center text-gray-600 h-6"></div>
     </div>
   </div>
-
+  
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const yorubaInput = document.getElementById('yorubaInput');
@@ -85,9 +81,10 @@
       const copyButton = document.getElementById('copyButton');
       const statusMessage = document.getElementById('statusMessage');
 
+      // ✅ Your Hugging Face Space backend URL
       const BACKEND_URL = "https://gaadwhin-yoruba_to_english_translation.hf.space/translate";
 
-      // Translation
+      // Function to handle translation
       const translateText = async () => {
         const text = yorubaInput.value.trim();
         if (!text) {
@@ -107,19 +104,28 @@
             body: JSON.stringify({ text }),
           });
 
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
 
           const result = await response.json();
-          if (result.translation) {
-            englishOutput.value = result.translation;
+
+          // Handle Hugging Face inference response
+          if (Array.isArray(result) && result[0].translation_text) {
+            englishOutput.value = result[0].translation_text;
             statusMessage.textContent = "Translation complete!";
           } else if (result.error) {
-            statusMessage.textContent = "Error: " + result.error;
+            englishOutput.value = "";
+            statusMessage.textContent = `Error: ${result.error}`;
           } else {
+            englishOutput.value = "";
             statusMessage.textContent = "Unexpected response format.";
           }
+
         } catch (error) {
+          console.error("Translation failed:", error);
           statusMessage.textContent = `Error: ${error.message}`;
+          englishOutput.value = "Translation failed.";
         } finally {
           translateButton.disabled = false;
           translateButton.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -137,17 +143,11 @@
 
       copyButton.addEventListener('click', () => {
         englishOutput.select();
-        englishOutput.setSelectionRange(0, 99999);
-        try {
-          document.execCommand('copy');
-          statusMessage.textContent = "Copied to clipboard!";
-        } catch {
-          statusMessage.textContent = "Failed to copy.";
-        }
+        document.execCommand("copy");
+        statusMessage.textContent = "Copied to clipboard!";
       });
     });
   </script>
 
 </body>
 </html>
-
