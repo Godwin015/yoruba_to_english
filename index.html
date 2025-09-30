@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yoruba-English Translator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +22,7 @@
   <!-- Main Container -->
   <div class="bg-white rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden p-6 md:p-10">
     
-    <!-- Header Section -->
+    <!-- Header -->
     <div class="text-center mb-8">
       <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
         Yoruba-English Machine Translation
@@ -30,8 +30,8 @@
       <p class="text-md md:text-lg text-gray-500 mt-2">
         Seamlessly translate Yoruba text into English.
       </p>
-       <p class="text-md md:text-lg text-gray-500 mt-2">
-        -By Obayori Deborah
+      <p class="text-md md:text-lg text-gray-500 mt-2">
+        – By Obayori Deborah
       </p>
     </div>
 
@@ -39,7 +39,9 @@
     <div class="space-y-6">
       <!-- Yoruba Input -->
       <div class="relative">
-        <label for="yorubaInput" class="block text-sm font-medium text-gray-700 mb-1">Enter Yoruba Text</label>
+        <label for="yorubaInput" class="block text-sm font-medium text-gray-700 mb-1">
+          Enter Yoruba Text
+        </label>
         <textarea id="yorubaInput" rows="5" placeholder="Ẹsẹ ọrọ Yoruba"
           class="block w-full rounded-2xl border border-gray-300 p-4 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"></textarea>
       </div>
@@ -58,7 +60,9 @@
 
       <!-- Translation Output -->
       <div class="relative">
-        <label for="englishOutput" class="block text-sm font-medium text-gray-700 mb-1">Translated English Text</label>
+        <label for="englishOutput" class="block text-sm font-medium text-gray-700 mb-1">
+          Translated English Text
+        </label>
         <textarea id="englishOutput" rows="5" readonly
           class="block w-full rounded-2xl border border-gray-300 p-4 bg-gray-50 text-gray-900 focus:outline-none transition-all duration-200 resize-none"></textarea>
         <button id="copyButton"
@@ -67,11 +71,12 @@
         </button>
       </div>
 
-      <!-- Status and Error Message Display -->
+      <!-- Status -->
       <div id="statusMessage" class="text-sm text-center text-gray-600 h-6"></div>
     </div>
   </div>
   
+  <!-- Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const yorubaInput = document.getElementById('yorubaInput');
@@ -81,19 +86,19 @@
       const copyButton = document.getElementById('copyButton');
       const statusMessage = document.getElementById('statusMessage');
 
-      // ✅ Your Hugging Face Space backend URL
+      // ✅ Hugging Face Space backend URL (note: underscores → hyphens)
       const BACKEND_URL = "https://gaadwhin-yoruba-to-english-translation.hf.space/translate";
 
-      // Function to handle translation
+      // Translate function
       const translateText = async () => {
         const text = yorubaInput.value.trim();
         if (!text) {
-          statusMessage.textContent = "Please enter some text to translate.";
+          statusMessage.textContent = "⚠️ Please enter some text to translate.";
           englishOutput.value = "";
           return;
         }
 
-        statusMessage.textContent = "Translating...";
+        statusMessage.textContent = "⏳ Translating...";
         translateButton.disabled = true;
         translateButton.classList.add('opacity-50', 'cursor-not-allowed');
 
@@ -104,27 +109,28 @@
             body: JSON.stringify({ text }),
           });
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
           const result = await response.json();
+          console.log("Backend response:", result);
 
-          // Handle Hugging Face inference response
+          // ✅ Handle different result formats
           if (Array.isArray(result) && result[0].translation_text) {
             englishOutput.value = result[0].translation_text;
-            statusMessage.textContent = "Translation complete!";
+            statusMessage.textContent = "✅ Translation complete!";
+          } else if (result.translation_text) {
+            englishOutput.value = result.translation_text;
+            statusMessage.textContent = "✅ Translation complete!";
           } else if (result.error) {
             englishOutput.value = "";
-            statusMessage.textContent = `Error: ${result.error}`;
+            statusMessage.textContent = `❌ Error: ${result.error}`;
           } else {
             englishOutput.value = "";
-            statusMessage.textContent = "Unexpected response format.";
+            statusMessage.textContent = "⚠️ Unexpected response format.";
           }
 
         } catch (error) {
           console.error("Translation failed:", error);
-          statusMessage.textContent = `Error: ${error.message}`;
+          statusMessage.textContent = `❌ Error: ${error.message}`;
           englishOutput.value = "Translation failed.";
         } finally {
           translateButton.disabled = false;
@@ -144,11 +150,9 @@
       copyButton.addEventListener('click', () => {
         englishOutput.select();
         document.execCommand("copy");
-        statusMessage.textContent = "Copied to clipboard!";
+        statusMessage.textContent = "📋 Copied to clipboard!";
       });
     });
   </script>
-
 </body>
 </html>
-
