@@ -7,10 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f3f4f6;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
@@ -21,15 +18,9 @@
 
   <div class="bg-white rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden p-6 md:p-10">
     <div class="text-center mb-8">
-      <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
-        Yoruba-English Machine Translation
-      </h1>
-      <p class="text-md md:text-lg text-gray-500 mt-2">
-        Seamlessly translate Yoruba text into English.
-      </p>
-      <p class="text-md md:text-lg text-gray-500 mt-2">
-        - By Obayori Deborah
-      </p>
+      <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">Yoruba-English Machine Translation</h1>
+      <p class="text-md md:text-lg text-gray-500 mt-2">Seamlessly translate Yoruba text into English.</p>
+      <p class="text-md md:text-lg text-gray-500 mt-2">- By Obayori Deborah</p>
     </div>
 
     <div class="space-y-6">
@@ -54,10 +45,6 @@
         <label for="englishOutput" class="block text-sm font-medium text-gray-700 mb-1">Translated English Text</label>
         <textarea id="englishOutput" rows="5" readonly
           class="block w-full rounded-2xl border border-gray-300 p-4 bg-gray-50 text-gray-900 focus:outline-none transition-all duration-200 resize-none"></textarea>
-        <button id="copyButton"
-          class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-all duration-200 focus:outline-none">
-          Copy
-        </button>
       </div>
 
       <div id="statusMessage" class="text-sm text-center text-gray-600 h-6"></div>
@@ -70,10 +57,9 @@
       const englishOutput = document.getElementById('englishOutput');
       const translateButton = document.getElementById('translateButton');
       const clearButton = document.getElementById('clearButton');
-      const copyButton = document.getElementById('copyButton');
       const statusMessage = document.getElementById('statusMessage');
 
-      // ✅ Correct Hugging Face Space backend URL
+      // Your Hugging Face backend URL
       const BACKEND_URL = "https://gaadwhin-yoruba-to-english-translation.hf.space/api/predict/";
 
       const translateText = async () => {
@@ -86,13 +72,12 @@
 
         statusMessage.textContent = "Translating...";
         translateButton.disabled = true;
-        translateButton.classList.add('opacity-50', 'cursor-not-allowed');
 
         try {
           const response = await fetch(BACKEND_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: [text] })  // Gradio expects "data" array
+            body: JSON.stringify({ data: [text] })
           });
 
           if (!response.ok) {
@@ -101,12 +86,9 @@
 
           const result = await response.json();
 
-          if (result.data && result.data[0]) {
+          if (result && result.data && result.data[0]) {
             englishOutput.value = result.data[0];
-            statusMessage.textContent = "✅ Translation complete!";
-          } else if (result.error) {
-            englishOutput.value = "";
-            statusMessage.textContent = `Error: ${result.error}`;
+            statusMessage.textContent = "Translation complete!";
           } else {
             englishOutput.value = "";
             statusMessage.textContent = "Unexpected response format.";
@@ -114,11 +96,10 @@
 
         } catch (error) {
           console.error("Translation failed:", error);
-          statusMessage.textContent = `❌ Error: ${error.message}`;
           englishOutput.value = "Translation failed.";
+          statusMessage.textContent = `Error: ${error.message}`;
         } finally {
           translateButton.disabled = false;
-          translateButton.classList.remove('opacity-50', 'cursor-not-allowed');
         }
       };
 
@@ -128,12 +109,6 @@
         yorubaInput.value = "";
         englishOutput.value = "";
         statusMessage.textContent = "";
-      });
-
-      copyButton.addEventListener('click', () => {
-        englishOutput.select();
-        document.execCommand("copy");
-        statusMessage.textContent = "Copied to clipboard!";
       });
     });
   </script>
